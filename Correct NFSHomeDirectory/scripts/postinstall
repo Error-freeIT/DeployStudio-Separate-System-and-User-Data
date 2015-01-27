@@ -1,0 +1,39 @@
+#!/bin/bash
+
+NAME="correctnfshomedirectory.sh"
+PATH="/Library/Scripts/Correct NFSHomeDirectory"
+IDENTIFIER="au.com.errorfreeit.correctnfshomedirectory"
+
+
+LAUNCH_DAEMON_PLIST="/Library/LaunchDaemons/$IDENTIFIER.plist"
+
+# Write LaunchDaemon plist file.
+echo '<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>'$IDENTIFIER'</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>'$PATH/$NAME'</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>' > "$LAUNCH_DAEMON_PLIST"
+
+# Load the new LaunchDaemon.
+/bin/launchctl load "$LAUNCH_DAEMON_PLIST"
+
+# Check LaunchDaemon is loaded.
+STATUS=`/bin/launchctl list | /usr/bin/grep $IDENTIFIER | /usr/bin/awk '{print $3}'`
+
+if [ "$STATUS" = "$IDENTIFIER" ]
+then
+        echo "Success: LaunchDaemon loaded."
+        exit 0      
+else
+        echo "Error: LaunchDaemon not loaded."      
+        exit 1
+fi
